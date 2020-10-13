@@ -64,7 +64,7 @@ Display::Display(const bool high_dpi_allowed, const unsigned width, const unsign
     video_width_{(int) width},
     video_height_{(int) height},
 	window_{check_SDL(SDL_CreateWindow(
-		"video-compare", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+		"video-compare", 0, 5, // x,y,w,h  y=5 to give a chance to drag the window
 		high_dpi_allowed_ ? width / 2 : width, high_dpi_allowed_ ? height / 2 : height, high_dpi_allowed_ ? SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI : SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE),
 		"window"), SDL_DestroyWindow},
 	renderer_{check_SDL(SDL_CreateRenderer(
