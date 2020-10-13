@@ -20,7 +20,8 @@ static inline bool isBehind(int64_t frame1_pts, int64_t frame2_pts) {
 	return diff < -(1.0f / 60.0f);
 }
 
-VideoCompare::VideoCompare(const bool high_dpi_allowed, const std::string &left_file_name, const std::string &right_file_name) :
+VideoCompare::VideoCompare(const bool high_dpi_allowed, const bool loop, const std::string &left_file_name, const std::string &right_file_name) :
+	loop_(loop),
 	demuxer_{
 		std::make_unique<Demuxer>(left_file_name), 
 		std::make_unique<Demuxer>(right_file_name)},
@@ -203,6 +204,12 @@ void VideoCompare::video() {
 			display_->input();
 
 			float current_position = left_pts / 1000000.0f;
+
+			float loop_duration = std::max(demuxer_[0]->get_duration(), demuxer_[1]->get_duration()) / 1000000.0f - 0.5;
+			if (loop_ && (current_position > loop_duration))
+			{
+				display_->set_seek_relative(-loop_duration);
+			}
 
 			if (display_->get_seek_relative() != 0.0f) {
                 if (packet_queue_[0]->isFinished() || packet_queue_[1]->isFinished()) {

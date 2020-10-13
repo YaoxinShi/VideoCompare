@@ -12,7 +12,9 @@ int main(int argc, char** argv) {
             { "help", {"-h", "--help"},
             "show help", 0},
             { "high-dpi", {"-d", "--high-dpi"},
-            "allow high DPI mode for e.g. displaying UHD on Retina displays", 0}
+            "allow high DPI mode for e.g. displaying UHD on Retina displays", 0},
+            { "loop", {"-l", "--loop"},
+            "loop playback", 0}, //here '0' means --loop has no parameter
         }};
 
         argagg::parser_results args;
@@ -32,7 +34,7 @@ int main(int argc, char** argv) {
                 throw std::logic_error{"Two FFmpeg compatible video files must be supplied"};
             }
 
-            VideoCompare compare{args["high-dpi"], args.pos[0], args.pos[1]};
+            VideoCompare compare{args["high-dpi"], args["loop"], args.pos[0], args.pos[1]};
             compare();
         }
 	}

@@ -13,6 +13,7 @@ public:
 	AVRational time_base() const;
 	bool operator()(AVPacket &packet);
     bool seek(const float position, const bool backward);
+	int64_t get_duration() { return format_context_->duration; };
 
 private:
 	AVFormatContext* format_context_{};

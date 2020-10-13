@@ -88,5 +88,6 @@ public:
 	bool get_play();
 	bool get_swap_left_right();
     float get_seek_relative();
+    void set_seek_relative(float f) { seek_relative_ = f; };
     int get_frame_offset_delta();
 };
