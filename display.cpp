@@ -263,7 +263,7 @@ void Display::refresh(
             SDL_Rect render_quad_right = { split_x, 0, (drawable_width_ - split_x), drawable_height_ };
 
             if (subtraction_mode_) {
-                update_difference(planes_left, pitches_left, planes_right, pitches_right, split_x);
+                update_difference(planes_left, pitches_left, planes_right, pitches_right, 0); // calculate the full image. For !same_position case, start from split_x is enough. But for same_position case, it is not enough and will show a purple bar.
 
                 if (same_position_)
                 {
