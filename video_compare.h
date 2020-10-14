@@ -16,7 +16,7 @@ extern "C" {
 
 class VideoCompare {
 public:
-	VideoCompare(const bool high_dpi_allowed, const bool loop, const std::string &left_file_name, const std::string &right_file_name);
+	VideoCompare(const bool high_dpi_allowed, const bool loop, const bool same_position, const std::string &left_file_name, const std::string &right_file_name);
 	void operator()();
 private:
 	void thread_demultiplex_left();

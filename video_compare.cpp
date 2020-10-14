@@ -20,7 +20,7 @@ static inline bool isBehind(int64_t frame1_pts, int64_t frame2_pts) {
 	return diff < -(1.0f / 60.0f);
 }
 
-VideoCompare::VideoCompare(const bool high_dpi_allowed, const bool loop, const std::string &left_file_name, const std::string &right_file_name) :
+VideoCompare::VideoCompare(const bool high_dpi_allowed, const bool loop, const bool same_position, const std::string &left_file_name, const std::string &right_file_name) :
 	loop_(loop),
 	demuxer_{
 		std::make_unique<Demuxer>(left_file_name), 
@@ -33,7 +33,7 @@ VideoCompare::VideoCompare(const bool high_dpi_allowed, const bool loop, const s
 	format_converter_{
 		std::make_unique<FormatConverter>(video_decoder_[0]->width(), video_decoder_[0]->height(), max_width_, max_height_, video_decoder_[0]->pixel_format(), AV_PIX_FMT_YUV420P),
 		std::make_unique<FormatConverter>(video_decoder_[1]->width(), video_decoder_[1]->height(), max_width_, max_height_, video_decoder_[1]->pixel_format(), AV_PIX_FMT_YUV420P)},
-	display_{std::make_unique<Display>(high_dpi_allowed, max_width_, max_height_, left_file_name, right_file_name)},
+	display_{std::make_unique<Display>(high_dpi_allowed, same_position, max_width_, max_height_, left_file_name, right_file_name)},
 	timer_{std::make_unique<Timer>()},
 	packet_queue_{
 		std::make_unique<PacketQueue>(queue_size_),

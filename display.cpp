@@ -59,8 +59,9 @@ SDL::~SDL() {
 	SDL_Quit();
 }
 
-Display::Display(const bool high_dpi_allowed, const unsigned width, const unsigned height, const std::string &left_file_name,  const std::string &right_file_name) :
+Display::Display(const bool high_dpi_allowed, const bool same_position, const unsigned width, const unsigned height, const std::string &left_file_name,  const std::string &right_file_name) :
     high_dpi_allowed_{high_dpi_allowed},
+    same_position_{ same_position },
     video_width_{(int) width},
     video_height_{(int) height},
 	window_{check_SDL(SDL_CreateWindow(
@@ -230,11 +231,33 @@ void Display::refresh(
         // update video
         if (show_left_ && (split_x > 0)) {
             SDL_Rect render_quad_left = { 0, 0, split_x, drawable_height_ };
+            if (same_position_)
+            {
+            render_quad_left = { 0, 0, drawable_width_ / 2, drawable_height_ }; // set window slipt to be fixed
+            int pixel_offset = pitches_left[0] * split_x / drawable_width_ / 2;
+            //     split_x             pitches_left[0]
+            //  __________________  * _________________
+            //    drawable_width_             2
+            //
+            //     [0% .. 100%]       [0 .. video_width/2]
+            //
+            // please note, if the display window is not wide enough, the right most of
+            // the video cannot be shown due to the window width limitation (althought
+            // pixel_offset is almost 50% * video_width)
+            check_SDL(!SDL_UpdateYUVTexture(
+                texture_, &render_quad_left,
+                planes_left[0] + pixel_offset, pitches_left[0],
+                planes_left[1] + pixel_offset / 2, pitches_left[1],
+                planes_left[2] + pixel_offset / 2, pitches_left[2]), "left texture update");
+            }
+            else
+            {
             check_SDL(!SDL_UpdateYUVTexture(
                 texture_, &render_quad_left,
                 planes_left[0], pitches_left[0],
                 planes_left[1], pitches_left[1],
                 planes_left[2], pitches_left[2]), "left texture update");
+            }
         }
         if (show_right_ && (split_x < (drawable_width_ - 1))) {
             SDL_Rect render_quad_right = { split_x, 0, (drawable_width_ - split_x), drawable_height_ };
@@ -242,17 +265,43 @@ void Display::refresh(
             if (subtraction_mode_) {
                 update_difference(planes_left, pitches_left, planes_right, pitches_right, split_x);
 
+                if (same_position_)
+                {
+                render_quad_right = { drawable_width_ / 2, 0, drawable_width_ / 2, drawable_height_ }; // set window slipt to be fixed
+                int pixel_offset = video_width_ * split_x / drawable_width_ / 2;
+                check_SDL(!SDL_UpdateYUVTexture(
+                    texture_, &render_quad_right,
+                    diff_planes_[0] + pixel_offset, video_width_,
+                    diff_planes_[1] + pixel_offset / 2, video_width_ / 2,
+                    diff_planes_[2] + pixel_offset / 2, video_width_ / 2), "right texture update (subtraction mode)");
+                }
+                else
+                {
                 check_SDL(!SDL_UpdateYUVTexture(
                     texture_, &render_quad_right,
                     diff_planes_[0] + split_x, video_width_,
                     diff_planes_[1] + split_x / 2, video_width_ / 2,
                     diff_planes_[2] + split_x / 2, video_width_ / 2), "right texture update (subtraction mode)");
+                }
             } else {
+                if (same_position_)
+                {
+                render_quad_right = { drawable_width_ / 2, 0, drawable_width_ / 2, drawable_height_ }; // set window slipt to be fixed
+                int pixel_offset = pitches_right[0] * split_x / drawable_width_ / 2;
+                check_SDL(!SDL_UpdateYUVTexture(
+                    texture_, &render_quad_right,
+                    planes_right[0] + pixel_offset, pitches_right[0],
+                    planes_right[1] + pixel_offset / 2, pitches_right[1],
+                    planes_right[2] + pixel_offset / 2, pitches_right[2]), "right texture update (video mode)");
+                }
+                else
+                {
                 check_SDL(!SDL_UpdateYUVTexture(
                     texture_, &render_quad_right,
                     planes_right[0] + split_x, pitches_right[0],
                     planes_right[1] + split_x / 2, pitches_right[1],
                     planes_right[2] + split_x / 2, pitches_right[2]), "right texture update (video mode)");
+                }
 
             }
         }

@@ -11,6 +11,7 @@
 3. Run
 * VideoCompare.exe 1.mp4 2.mp4
 * VideoCompare.exe --loop 1.mp4 2.mp4
+* VideoCompare.exe --loop --same 1.mp4 2.mp4
 * VideoCompare.exe 1.jpg 2.jpg
 
 4. Controls
