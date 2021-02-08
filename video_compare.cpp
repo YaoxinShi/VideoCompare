@@ -206,7 +206,13 @@ void VideoCompare::video() {
 
 			float current_position = left_pts / 1000000.0f;
 
-			float loop_duration = std::max(demuxer_[0]->get_duration(), demuxer_[1]->get_duration()) / 1000000.0f - 0.5;
+			float loop_duration = std::min(demuxer_[0]->get_duration(), demuxer_[1]->get_duration()) / 1000000.0f - 1.0;
+			if (loop_ &&
+				((demuxer_[0]->get_duration() / 1000000.0f < 2.0f) || (demuxer_[1]->get_duration() / 1000000.0f < 2.0f)))
+			{
+				printf("The video file is too short for loop.\n");
+				assert(0);
+			}
 			if (loop_duration < 0 || loop_duration > 9999999)
 			{
 				printf("The video file may not contain the duration info.\n");
