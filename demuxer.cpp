@@ -1,15 +1,26 @@
 #include "demuxer.h"
 #include "ffmpeg.h"
 #include <iostream>
+#include <assert.h>
 
 Demuxer::Demuxer(const std::string &file_name) {
 	av_register_all();
-	ffmpeg::check(avformat_open_input(
-		&format_context_, file_name.c_str(), nullptr, nullptr));
-	ffmpeg::check(avformat_find_stream_info(
-		format_context_, nullptr));
-	video_stream_index_ = ffmpeg::check(av_find_best_stream(
-		format_context_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0));
+	if (avformat_open_input(&format_context_, file_name.c_str(), nullptr, nullptr) < 0)
+	{
+		printf("avformat_open_input() fail. Does the file exist?\n");
+		assert(0);
+	}
+	if (avformat_find_stream_info(format_context_, nullptr) < 0)
+	{
+		printf("avformat_find_stream_info() fail.\n");
+		assert(0);
+	}
+	video_stream_index_ = av_find_best_stream(format_context_, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
+	if (video_stream_index_ < 0)
+	{
+		printf("av_find_best_stream() fail.\n");
+		assert(0);
+	}
 }
 
 Demuxer::~Demuxer() {

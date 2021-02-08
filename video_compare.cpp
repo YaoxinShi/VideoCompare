@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <deque>
+#include <assert.h>
 extern "C" {
 	#include <libavutil/time.h>
 	#include <libavutil/imgutils.h>
@@ -206,6 +207,12 @@ void VideoCompare::video() {
 			float current_position = left_pts / 1000000.0f;
 
 			float loop_duration = std::max(demuxer_[0]->get_duration(), demuxer_[1]->get_duration()) / 1000000.0f - 0.5;
+			if (loop_duration < 0 || loop_duration > 9999999)
+			{
+				printf("The video file may not contain the duration info.\n");
+				printf("Try: 'ffmpeg.exe -i in.mp4 -c:v copy out.mp4'\n");
+				assert(0);
+			}
 			if (loop_ && (current_position > loop_duration))
 			{
 				display_->set_seek_relative(-loop_duration);
